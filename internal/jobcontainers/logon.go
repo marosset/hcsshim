@@ -5,8 +5,10 @@ import (
 	"strings"
 
 	"github.com/Microsoft/hcsshim/internal/winapi"
+	"github.com/danieljoos/wincred"
 	"github.com/pkg/errors"
 	"golang.org/x/sys/windows"
+	"golang.org/x/text/encoding/unicode"
 )
 
 // processToken returns a user token for the user specified by `user`. This should be in the form
@@ -32,16 +34,30 @@ func processToken(user string) (windows.Token, error) {
 		return 0, errors.New("empty user string passed")
 	}
 
+	var password *uint16 = nil
 	logonType := winapi.LOGON32_LOGON_INTERACTIVE
 	// User asking to run as a local system account (NETWORK SERVICE, LOCAL SERVICE, SYSTEM)
 	if domain == "NT AUTHORITY" {
 		logonType = winapi.LOGON32_LOGON_SERVICE
+	} else if domain == "localhost" {
+		cred, err := wincred.GetGenericCredential(user)
+		if err != nil {
+			return 0, fmt.Errorf("Error retrieving credentials for user `%s`", user)
+		}
+
+		decoder := unicode.UTF16(unicode.LittleEndian, unicode.UseBOM).NewDecoder()
+		passwordString, err := decoder.String(string(cred.CredentialBlob))
+		if err != nil {
+			return 0, fmt.Errorf("Error decoding credential string for user `%s`", user)
+		}
+
+		password = windows.StringToUTF16Ptr(passwordString)
 	}
 
 	if err := winapi.LogonUser(
 		windows.StringToUTF16Ptr(userName),
 		windows.StringToUTF16Ptr(domain),
-		nil,
+		password,
 		logonType,
 		winapi.LOGON32_PROVIDER_DEFAULT,
 		&token,

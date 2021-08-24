@@ -11,6 +11,7 @@ require (
 	github.com/containerd/go-runc v1.0.0
 	github.com/containerd/ttrpc v1.0.2
 	github.com/containerd/typeurl v1.0.2
+	github.com/danieljoos/wincred v1.1.2 // indirect
 	github.com/gogo/protobuf v1.3.2
 	github.com/google/go-cmp v0.5.6
 	github.com/google/go-containerregistry v0.5.1
@@ -25,7 +26,8 @@ require (
 	github.com/vishvananda/netns v0.0.0-20200728191858-db3c7e526aae
 	go.opencensus.io v0.22.3
 	golang.org/x/sync v0.0.0-20201207232520-09787c993a3a
-	golang.org/x/sys v0.0.0-20210426230700-d19ff857e887
+	golang.org/x/sys v0.0.0-20210819135213-f52c844e1c1c
+	golang.org/x/text v0.3.7 // indirect
 	google.golang.org/grpc v1.33.2
 )
 
